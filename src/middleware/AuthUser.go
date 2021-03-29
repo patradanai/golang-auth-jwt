@@ -1,31 +1,33 @@
 package authmiddle
 
 import (
-	"fmt"
-	"github.com/gin-gonic/gin"
+	"net/http"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 type authHeader struct {
-	token string `header:"Authorization"`
+	Token string `header:"Authorization"`
 }
 
 func AuthUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		header := authHeader{}
 
-		// Check Authorization Header
-		if err := c.ShouldBindHeader(&header); err != nil {
-			c.JSON(401, "UnAuthorization")
+		// Check Authorization Header && Extract Token
+		if err := c.BindHeader(&header); err != nil {
+			c.JSON(http.StatusUnauthorized, "UnAuthorization")
 			c.Abort()
 			return
 		}
 
 		// Splite Authorization
-		tokenId := strings.Split(header.token, "Bearer ")
-		fmt.Printf("%#v\n", header)
+		tokenId := strings.Split(header.Token, "Bearer ")
+
+		// Check Bearer
 		if len(tokenId) < 2 {
-			c.JSON(401,
+			c.JSON(http.StatusUnauthorized,
 				" Must provide Authorization header with format `Bearer {token}")
 			c.Abort()
 			return

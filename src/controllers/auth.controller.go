@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"net/http"
 	"os"
 	"time"
 
@@ -23,19 +24,28 @@ func Signin(c *gin.Context) {
 
 	// Check JSON Valid
 	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(200, "ERROR INVALID JSON FORMAT")
+		c.JSON(http.StatusAccepted, "ERROR INVALID JSON FORMAT")
 		c.Abort()
 		return
 	}
 
 	// Find in Data base
 	if test.Username != user.Username || test.Password != user.Password {
-		c.JSON(401, "UnAuthorization USER or PASS Invalid")
+		c.JSON(http.StatusUnauthorized, "UnAuthorization USER or PASS Invalid")
 		c.Abort()
 		return
 	}
 
 	// Gen token
+	token, err := CreateToken(1)
+
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, err.Error())
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"token": token,
+	})
 
 }
 
