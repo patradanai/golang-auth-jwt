@@ -9,6 +9,10 @@ Package
 2. go run -u github.com/gin-gonic/gin
 
 
+Env 
+
+SECRET_KEY = "......"
+
 Function 
 
 1. Signin
