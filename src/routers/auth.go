@@ -9,6 +9,6 @@ import (
 func RouterAuth(router *gin.Engine) {
 	auth := router.Group("/auth")
 
-	auth.POST("/signin", controllers.AuthLogin)
+	auth.POST("/signin", controllers.Signin)
 
 }
