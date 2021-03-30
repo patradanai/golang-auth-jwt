@@ -26,6 +26,16 @@ type SignupType struct {
 	Lname    string `json:"lname"`
 }
 
+type ResultQuery struct {
+	ID       uint64
+	Email    string
+	Username string
+	Password string
+	Fname    string
+	Lname    string
+	RoleID   uint
+}
+
 var test = Login{
 	Username: "username",
 	Password: "password",
@@ -33,7 +43,7 @@ var test = Login{
 
 func Signin(c *gin.Context) {
 	var user Login
-
+	var retriveUser ResultQuery
 	// Check JSON Valid
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusAccepted, "ERROR INVALID JSON FORMAT")
@@ -42,14 +52,22 @@ func Signin(c *gin.Context) {
 	}
 
 	// Find in Data base
-	if test.Username != user.Username || test.Password != user.Password {
-		c.JSON(http.StatusUnauthorized, "UnAuthorization USER or PASS Invalid")
+	result := models.DB.Model(models.User{}).Find(&retriveUser)
+	if result.RowsAffected < 1 {
+		c.JSON(http.StatusNotFound, gin.H{"message": "User not found ...."})
+		c.Abort()
+		return
+	}
+
+	// Compare Password
+	if err := decryptPassword(user.Password, retriveUser.Password); err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "Password incorrect"})
 		c.Abort()
 		return
 	}
 
 	// Gen token
-	token, err := CreateToken(1)
+	token, err := CreateToken(retriveUser.ID)
 
 	if err != nil {
 		c.JSON(http.StatusUnprocessableEntity, err.Error())
@@ -115,4 +133,13 @@ func genBcrypt(rawPass string) []byte {
 	}
 
 	return hashedPassword
+}
+
+// Compare Password
+func decryptPassword(rawPass string, hashedPassword string) error {
+
+	// Succuss return nil , if failure return error
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(rawPass))
+
+	return err
 }
