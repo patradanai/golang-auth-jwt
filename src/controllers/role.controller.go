@@ -1,13 +1,15 @@
 package controllers
 
-func isAdmin() {
+import "github.com/gin-gonic/gin"
+
+func isAdmin(c *gin.Context) {
 
 }
 
-func isCustomer() {
+func isCustomer(c *gin.Context) {
 
 }
 
-func isSupport() {
+func isSupport(c *gin.Context) {
 
 }
