@@ -2,7 +2,7 @@ package models
 
 import "gorm.io/gorm"
 
-// Relationship 1 to mamy
+// Relationship many to mamy
 
 type Role struct {
 	gorm.Model
