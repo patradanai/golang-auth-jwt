@@ -4,16 +4,17 @@ Hi,there
 
 Propose Backend Golang + Auth Middleware + JWT , MYSQL
 
-Package 
+Package
+
 1. go run -u github.com/dgrijalva/jwt-go
 2. go run -u github.com/gin-gonic/gin
-
-
-Env 
+3. go get github.com/jinzhu/gorm ---> Object ORM tool for mysql
+4. go get github.com/go-sql-driver/mysql ---> Driver
+   Env
 
 SECRET_KEY = "......"
 
-Function 
+Function
 
 1. Signin
 2. SignUp

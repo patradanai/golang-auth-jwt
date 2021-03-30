@@ -1,16 +1,40 @@
 package main
 
 import (
+	"Auth/src/models"
 	"Auth/src/routers"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
+
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 type authHeader struct {
 	token string `header:"Authorization"`
 }
 
+var (
+	db *gorm.DB
+)
+
+var roles = []models.Role{{Role: "Admin"}, {Role: "Customer"}, {Role: "Support"}}
+
 func main() {
+	var err error
+	// Please define your username and password for MySQL.
+	db, err = gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{})
+
+	if err != nil {
+		fmt.Println("Connection Failed to Open")
+	} else {
+		fmt.Println("Connection Established")
+	}
+
+	db.AutoMigrate(&models.Role{}, &models.User{})
+	db.Create(&roles)
+
 	r := gin.Default()
 
 	// By default gin.DefaultWriter = os.Stdout
@@ -24,7 +48,7 @@ func main() {
 
 	routers.RouterAuth(r)
 
-	r.Run() // listen and serve on 0.0.0.0:8080
+	r.Run(":8081") // listen and serve on 0.0.0.0:8080
 }
 
 func CORSMiddleware() gin.HandlerFunc {
