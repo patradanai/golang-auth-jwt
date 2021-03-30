@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -43,7 +44,7 @@ var test = Login{
 
 func Signin(c *gin.Context) {
 	var user Login
-	var retriveUser ResultQuery
+	var retriveUser models.User
 	// Check JSON Valid
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusAccepted, "ERROR INVALID JSON FORMAT")
@@ -52,7 +53,7 @@ func Signin(c *gin.Context) {
 	}
 
 	// Find in Data base
-	result := models.DB.Model(models.User{}).Find(&retriveUser)
+	result := models.DB.Debug().Preload("Roles").Where("username = ?", user.Username).First(&retriveUser)
 	if result.RowsAffected < 1 {
 		c.JSON(http.StatusNotFound, gin.H{"message": "User not found ...."})
 		c.Abort()
@@ -73,22 +74,32 @@ func Signin(c *gin.Context) {
 		c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
 
+	// Add Role
+	role := []string{}
+
+	for _, val := range retriveUser.Roles {
+		role = append(role, "ROLE_"+strings.ToUpper(val.Role))
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"token": token,
+		"firstname": retriveUser.Fname,
+		"lastname":  retriveUser.Lname,
+		"token":     token,
+		"role":      strings.Join(role, ","),
 	})
 
 }
 
 func Signup(c *gin.Context) {
 	var user models.User
-	var params = c.MustGet("params").(SignupType)
+	var params = c.MustGet("params").(SignupType) // Get Params from MiddleWare
 
 	user.Email = params.Email
 	user.Username = params.Username
 	user.Password = string(genBcrypt(params.Password)) // bcrypt password hashing
 	user.Fname = params.Fname
 	user.Lname = params.Lname
-	user.RoleID = 2 // Customer
+	user.Roles = []models.Role{{ID: 1}, {ID: 2}}
 
 	result := models.DB.Create(&user)
 
@@ -102,7 +113,7 @@ func Signup(c *gin.Context) {
 
 }
 
-func CreateToken(id uint64) (string, error) {
+func CreateToken(id uint) (string, error) {
 
 	// Create Claims
 	claims := jwt.MapClaims{

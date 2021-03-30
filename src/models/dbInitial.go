@@ -24,6 +24,6 @@ func OpenDb() {
 	}
 
 	DB.AutoMigrate(&Role{}, &User{})
-	// db.Create(&roles)
+	// DB.Create(&roles)
 
 }

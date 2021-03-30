@@ -6,16 +6,17 @@ import "gorm.io/gorm"
 
 type Role struct {
 	gorm.Model
-	Role  string
-	Users []User
+	ID   uint `gorm:"primaryKey"`
+	Role string
 }
 
 type User struct {
 	gorm.Model
+	ID       uint `gorm:"primaryKey"`
 	Email    string
 	Username string
 	Password string
 	Fname    string
 	Lname    string
-	RoleID   uint
+	Roles    []Role `gorm:"many2many:user_roles;"`
 }
