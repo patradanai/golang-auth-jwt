@@ -4,6 +4,8 @@ Hi,there
 
 Propose Backend Golang + Auth Middleware + JWT , MYSQL
 
+Access Db connection instance with "Request context"
+
 Package
 
 1. go run -u github.com/dgrijalva/jwt-go
