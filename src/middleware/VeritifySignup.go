@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 
 	"Auth/src/controllers"
 	"Auth/src/models"
@@ -11,6 +12,7 @@ import (
 
 func VertifySignUp() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		var ctx = c.MustGet("dbConnection").(*gorm.DB)
 		// Slice have child User
 		var user []models.User
 		// paramsUser
@@ -24,7 +26,7 @@ func VertifySignUp() gin.HandlerFunc {
 		}
 
 		// Find in DB
-		result := models.DB.Where("username = ?", paramsUser.Username).First(&user)
+		result := ctx.Where("username = ?", paramsUser.Username).First(&user)
 
 		// Check If existing User
 		if result.RowsAffected > 0 {

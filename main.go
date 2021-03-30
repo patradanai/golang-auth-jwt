@@ -1,23 +1,48 @@
 package main
 
 import (
-	"Auth/src/routers"
-
 	"Auth/src/models"
+	"Auth/src/routers"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 type authHeader struct {
 	token string `header:"Authorization"`
 }
 
+// Create some middleware which swaps out the existing request context
+// with new context.Context value containing the connection pool.
+func injectDBGorm(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Set("dbConnection", db)
+
+		c.Next()
+	}
+}
+
 func main() {
 
-	// Initial DB
-	models.OpenDb()
+	// Please define your username and password for MySQL.
+	DB, err := gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{})
+
+	if err != nil {
+		fmt.Println("Connection Failed to Open")
+	} else {
+		fmt.Println("Connection Established")
+	}
+
+	// Init Gorm database
+	init := models.Handler{}
+	init.Db = DB
+	init.OpenDb()
 
 	r := gin.Default()
+
+	r.Use(injectDBGorm(DB))
 
 	// By default gin.DefaultWriter = os.Stdout
 	r.Use(gin.Logger())

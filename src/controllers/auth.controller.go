@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 
 	"Auth/src/models"
 
@@ -43,6 +44,7 @@ var test = Login{
 }
 
 func Signin(c *gin.Context) {
+	var ctx = c.MustGet("dbConnection").(*gorm.DB)
 	var user Login
 	var retriveUser models.User
 	// Check JSON Valid
@@ -53,7 +55,7 @@ func Signin(c *gin.Context) {
 	}
 
 	// Find in Data base
-	result := models.DB.Debug().Preload("Roles").Where("username = ?", user.Username).First(&retriveUser)
+	result := ctx.Debug().Preload("Roles").Where("username = ?", user.Username).First(&retriveUser)
 	if result.RowsAffected < 1 {
 		c.JSON(http.StatusNotFound, gin.H{"message": "User not found ...."})
 		c.Abort()
@@ -91,6 +93,7 @@ func Signin(c *gin.Context) {
 }
 
 func Signup(c *gin.Context) {
+	var ctx = c.MustGet("dbConnection").(*gorm.DB)
 	var user models.User
 	var params = c.MustGet("params").(SignupType) // Get Params from MiddleWare
 
@@ -101,7 +104,7 @@ func Signup(c *gin.Context) {
 	user.Lname = params.Lname
 	user.Roles = []models.Role{{ID: 1}, {ID: 2}}
 
-	if result := models.DB.Create(&user); result.Error != nil {
+	if result := ctx.Create(&user); result.Error != nil {
 		c.JSON(http.StatusForbidden, result.Error)
 		c.Abort()
 		return
