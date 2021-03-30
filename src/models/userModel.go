@@ -13,6 +13,7 @@ type Role struct {
 type User struct {
 	gorm.Model
 	Email    string
+	Username string
 	Password string
 	Fname    string
 	Lname    string

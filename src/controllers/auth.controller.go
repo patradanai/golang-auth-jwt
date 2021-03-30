@@ -14,6 +14,13 @@ type Login struct {
 	Password string `json:"password"`
 }
 
+type SignupType struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+	Fname    string `json:"fname"`
+	Lname    string `json:"lname"`
+}
+
 var test = Login{
 	Username: "username",
 	Password: "password",
@@ -50,7 +57,14 @@ func Signin(c *gin.Context) {
 }
 
 func Signup(c *gin.Context) {
+	var userSignup SignupType
 
+	// Extract userSignup
+	if err := c.ShouldBindJSON(&userSignup); err != nil {
+		c.JSON(http.StatusForbidden, "Invalid User Format")
+		c.Abort()
+		return
+	}
 }
 
 func CreateToken(id uint64) (string, error) {

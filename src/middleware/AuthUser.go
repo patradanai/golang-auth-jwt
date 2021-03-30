@@ -1,4 +1,4 @@
-package authmiddle
+package middles
 
 import (
 	"net/http"
