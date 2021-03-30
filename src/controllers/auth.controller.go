@@ -101,9 +101,7 @@ func Signup(c *gin.Context) {
 	user.Lname = params.Lname
 	user.Roles = []models.Role{{ID: 1}, {ID: 2}}
 
-	result := models.DB.Create(&user)
-
-	if result.Error != nil {
+	if result := models.DB.Create(&user); result.Error != nil {
 		c.JSON(http.StatusForbidden, result.Error)
 		c.Abort()
 		return
